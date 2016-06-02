@@ -55,6 +55,8 @@ class BaseBuildPlugin(BaseAction):
 
         self.pre_build_hook_path = join_path(self.plugin_path,
                                              'pre_build_hook')
+        self.post_build_hook_path = join_path(self.plugin_path,
+                                             'post_build_hook')
         self.meta = utils.parse_yaml(
             join_path(self.plugin_path, 'metadata.yaml')
         )
@@ -71,7 +73,12 @@ class BaseBuildPlugin(BaseAction):
         self.build_repos()
         self.add_checksums_file()
         self.make_package()
-
+        self.run_post_build_hook()
+        
+    def run_post_build_hook(self):
+        if utils.which(self.post_build_hook_path):
+            utils.exec_cmd(self.post_build_hook_path)
+            
     def clean(self):
         utils.remove(self.build_dir)
         utils.create_dir(self.build_dir)
